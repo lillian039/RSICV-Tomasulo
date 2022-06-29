@@ -1,3 +1,0 @@
-/mnt/d/a_homework_of_c++/1-3_semester/RSICV-Tomasulo/cmake-build-debug/CMakeFiles/rebuild_cache.dir
-/mnt/d/a_homework_of_c++/1-3_semester/RSICV-Tomasulo/cmake-build-debug/CMakeFiles/edit_cache.dir
-/mnt/d/a_homework_of_c++/1-3_semester/RSICV-Tomasulo/cmake-build-debug/CMakeFiles/RSICV_Tomasulo.dir
