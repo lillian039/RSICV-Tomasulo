@@ -106,7 +106,6 @@ private:
     static const int len = 8;
     struct LS_Buffer {// calculate address
         int State;
-        bool Ready;
         unsigned int Op;
         unsigned int Vj, Vk;
         int Qj, Qk;
@@ -125,16 +124,14 @@ private:
     } storeBus;
 public:
     void reset() {
-        for (int i = 0; i < len; i++) {
-            if (LSB[i].State != storing || (LSB[i].Ready && LSB[i].State == waitingStore))LSB[i].State = empty;
-        }
-        loadBus.time = 0;
+        for (int i = 0; i < len; i++) LSB[i].State = empty;
+        loadBus.time = 0,storeBus.time=0;
     }
 
     void insert(int entry, unsigned int order) {
         int i = 0;
         for (; i < len; i++)if (LSB[i].State == empty)break;
-        LSB[i].Dest = entry, LSB[i].State = waiting, LSB[i].A = getImm(order), LSB[i].Ready = false, LSB[i].Op = order;
+        LSB[i].Dest = entry, LSB[i].State = waiting, LSB[i].A = getImm(order),  LSB[i].Op = order;
         LSB[i].clock = Clock;
         unsigned int opcode = getOpcode(order);
         int rs1 = getRs1(order);
@@ -157,26 +154,18 @@ public:
     void commit(int entry) {
         for (int i = 0; i < len; i++) {
             if (LSB[i].Dest == entry) {
-                LSB[i].Ready = true;
+                LSB[i].State=storing;
+                storeBus.time=3;
+                storeBus.i=i;
                 break;
             }
         }
     }
 
-    void runStore() {
+    bool runStore() {
         // if (storeBus.time)puts("www");
-        if (!storeBus.time) {
-            int idx = -1;
-            unsigned time = ((1ll << 31) - 1);
-            for (int i = 0; i < len; i++)
-                if (LSB[i].State == waitingStore && LSB[i].Ready && time > LSB[i].clock)
-                    time = LSB[i].clock, idx = i;
-            if (idx != -1) {
-                storeBus.time = 3, storeBus.i = idx;
-                LSB[idx].State = storing;
-            }
-
-        } else {
+        if(!storeBus.time)return true;
+        else {
             storeBus.time--;
             if (!storeBus.time) {
                 int i = storeBus.i;
@@ -184,8 +173,10 @@ public:
                 //       puts("Store");
                 //        std::cout << "Address:" << LSB[i].Address << " Result: " << LSB[i].Result << std::endl;
                 LSB[i].State = empty;
+                return true;
             }
         }
+        return false;
     }
 
     void execute() {
@@ -389,7 +380,7 @@ void WriteResult() {
 
 void Commit() {
     Reorder_Buffer rob = ROB.head();
-    LSBuffer.runStore();
+    if(!LSBuffer.runStore())return;
     if (!rob.Ready)return;
     //   std::cout<<std::endl;
     if (rob.Instruct == 0x0ff00513u) {
@@ -414,8 +405,8 @@ void Commit() {
             reset();
         } else ROB.pop();
     }
-    //   printf("%04x ",PC);
-  //  getCommand(rob.Instruct);
+  //  printf("%04x ",PC);
+   // getCommand(rob.Instruct);
   //  showReg();
     //  showReg();
 }

@@ -6,11 +6,12 @@ using namespace std;
 
 
 int main() {
- //   freopen("array_test2.data", "r", stdin);
+ //   freopen("basicopt1.data", "r", stdin);
  //   freopen("me.out", "w", stdout);
     getCommand();
     reset();
     while (1) {
+     //   printf("%04x ",PC);
         Clock++;
         Commit();
         WriteResult();
