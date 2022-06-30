@@ -6,13 +6,14 @@ using namespace std;
 
 
 int main() {
- //   freopen("expr.data", "r", stdin);
- //   freopen("me.out", "w", stdout);
+   // freopen("qsort.data", "r", stdin);
+  //  freopen("me.out", "w", stdout);
     getCommand();
     reset();
     while (1) {
-     //   printf("%04x ",PC);
+    //    printf("%04x ",PC);
         Clock++;
+     //   if(Clock>=1000000)break;
         Commit();
         WriteResult();
         Execute();

@@ -3,7 +3,7 @@
 #include <map>
 
 using namespace std;
-unsigned int regis[32], mem[1000000], des=0, PC=0;
+unsigned int regis[32], mem[1000000], des = 0, PC = 0;
 
 void to_binary(unsigned int x, int len) {
     for (int i = len - 1; i >= 0; i--)cout << ((x >> i) & 1);
@@ -89,36 +89,36 @@ void FormatR(unsigned int order, int opcode) {
     //and write the result into register rd
     if (opcode == 0b0110011) {
         if (id == ADD) {
-            puts("Add");
+            //puts("Add");
             regis[rd] = regis[rs1] + regis[rs2];
         } else if (id == SUB) {
-            puts("Sub");
+            //puts("Sub");
             regis[rd] = regis[rs1] - regis[rs2];
         } else if (id == SLL) {//shift left
-            puts("Sll");
+            //puts("Sll");
             regis[rd] = (regis[rs1] << regis[rs2]);
         } else if (id == SLT) {//set less than
-            puts("Slt");
+            //puts("Slt");
             regis[rd] = int(regis[rs1]) < int(regis[rs2]);
         } else if (id == SLTU) {
-            puts("Sltu");
+            //puts("Sltu");
             regis[rd] = regis[rs1] < regis[rs2];
         } else if (id == XOR) {
-            puts("Xor");
+            //puts("Xor");
             //       cout << "xor" << endl;
             regis[rd] = (regis[rs1] ^ regis[rs2]);
         } else if (id == SRL) {//shift right
-            puts("Srl");
+            //puts("Srl");
             regis[rd] = (regis[rs1] >> regis[rs2]);
         } else if (id == SRA) {//shift right arithmetic :need to be signed
-            puts("Sra");
+            //puts("Sra");
             regis[rd] = (regis[rs1] >> regis[rs2]);
             if (regis[rs1] >> 31)for (int i = 31; i > 31 - regis[rs2]; i--)regis[rd] += (1 << i);
         } else if (id == OR) {
-            puts("Or");
+            //puts("Or");
             regis[rd] = (regis[rs1] | regis[rs2]);
         } else if (id == AND) {
-            puts("And");
+            //puts("And");
             regis[rd] = (regis[rs1] & regis[rs2]);
         }
     }
@@ -137,12 +137,12 @@ void FormatI(unsigned int order, int opcode) {
     unsigned int imm = (order >> 20);//[31,20]
     if (order >> 31)for (int i = 31; i >= 12; i--)imm += (1 << i);
     if (opcode == JALR) {//jump and link register
-        puts("Jalr");
+        //puts("Jalr");
         regis[rd] = PC + 4;
         PC = regis[rs1] + imm;
-     //   cout<<"rs1: "<<rs1<<" regis[rs1]: "<<regis[rs1]<<" imm: "<<imm<<endl;
-     //   printf("%04x",PC);
-    //    cout<<endl;
+        //   cout<<"rs1: "<<rs1<<" regis[rs1]: "<<regis[rs1]<<" imm: "<<imm<<endl;
+        //   printf("%04x",PC);
+        //    cout<<endl;
     } else if (opcode == 0b0000011) {
         //the effective address is obtained by
         // adding register rs1 to the sign-extended 12-bits offset
@@ -150,7 +150,7 @@ void FormatI(unsigned int order, int opcode) {
         //load 8 byte value form memory
         //than signed-extend to 32-bits before stording in rd;
         if (funct3 == LB) {
-            puts("Lb");
+            //puts("Lb");
             unsigned int bit_8 = mem[address];
             if (bit_8 >> 7)for (int i = 31; i >= 8; i--)bit_8 += (1 << i);
             regis[rd] = bit_8;
@@ -158,24 +158,24 @@ void FormatI(unsigned int order, int opcode) {
             //load 16 byte value form memory
             //than signed-extend to 32-bits before stording in rd;
         else if (funct3 == LH) {
-            puts("Lh");
+            //puts("Lh");
             unsigned int bit_16 = mem[address] + (mem[address + 1] << 8);
             if (bit_16 >> 15)for (int i = 31; i >= 16; i--)bit_16 += (1 << i);
             regis[rd] = bit_16;
         } else if (funct3 == LW) {
-            puts("Lw");
+            //puts("Lw");
             unsigned int bit_32 =
                     mem[address] | (mem[address + 1] << 8) | (mem[address + 2] << 16) | (mem[address + 3] << 24);
             regis[rd] = bit_32;
-     //     std::cout << "address: "<<address<<" Result: "<<bit_32 << std::endl;
+            //     cout<<"Address: "<<address<<" Result: "<<bit_32<<endl;
         } else if (funct3 == LBU) {//load byte unsigned
             //load 8 byte value form memory
             //than zero-extend to 32-bits before stording in rd;
-            puts("Lbu");
+            //puts("Lbu");
             unsigned int bit_8 = (mem[address] & ((1 << 9) - 1));
             regis[rd] = bit_8;
         } else if (funct3 == LHU) {
-            puts("Lhu");
+            //puts("Lhu");
             //load 16 byte value form memory
             //than zero-extend to 32-bits before stording in rd;
             unsigned int bit_16 = mem[address] + (mem[address + 1] << 8);
@@ -184,32 +184,32 @@ void FormatI(unsigned int order, int opcode) {
         PC += 4;
     } else if (opcode == 0b0010011) {
         if (funct3 == ADDI) {//add immediate(word)
-            puts("Addi");
+            //puts("Addi");
             regis[rd] = regis[rs1] + imm;
-       //     std::cout <<"rs1: "<<rs1<<" regis[rs1]: " << regis[rs1]  << " imm: " << imm << std::endl;
+            //        std::cout <<"rd: "<<rd<<" rs1: "<<rs1<<" regis[rs1]: " << regis[rs1]  << " imm: " << imm << std::endl;
         } else if (funct3 == SLTI) {//set less than immediate
-            puts("Slti");
+            //puts("Slti");
             regis[rd] = (int(regis[rs1]) < int(imm));
         } else if (funct3 == SLTIU) {//set < immediate unsigned
-            puts("Sltiu");
+            //puts("Sltiu");
             regis[rd] = regis[rs1] < imm;
         } else if (funct3 == XORI) {//XOR immediate
-            puts("Xori");
+            //puts("Xori");
             regis[rd] = (regis[rs1] ^ imm);
         } else if (funct3 == ORI) {// OR immediate
-            puts("ori");
+            //puts("ori");
             regis[rd] = (regis[rs1] | imm);
         } else if (funct3 == ANDI) {// AND immediate
-            puts("Andi");
+            //puts("Andi");
             regis[rd] = (regis[rs1] & imm);
         } else if (id == SLLI) {//shift left immediate
-            puts("Slli");
+            //puts("Slli");
             regis[rd] = (regis[rs1] << shamp);
         } else if (id == SRLI) {//shift right immediate
-            puts("Srli");
+            //puts("Srli");
             regis[rd] = (regis[rs1] >> shamp);
         } else if (id == SRAI) {//shift right arithmetic Imm: need to be signed
-            puts("Srai");
+            //puts("Srai");
             regis[rd] = (regis[rs1] >> shamp);
             if (regis[rs1] >> 31)for (int i = 31; i > 31 - shamp; i--)regis[rd] += (1 << i);
         }
@@ -229,22 +229,22 @@ void FormatS(unsigned int order, int opcode) {
     unsigned int address = regis[rs1] + imm;
     //store 8-bit from low bits of register rs2 to memory
     if (funct3 == SB) {
-        puts("Sb");
+        //puts("Sb");
         unsigned int bit_8 = (regis[rs2] & 255);
         mem[address] = bit_8;
     }
         //store 16-bit from low bits of register rs2 to memory
     else if (funct3 == SH) {
-        puts("Sh");
+        //puts("Sh");
         unsigned int bit_16 = (regis[rs2] & ((1 << 17) - 1));
         mem[address] = (bit_16 >> 8);
         mem[address + 1] = (bit_16 & 255u);
     }
         //store 32-bit from low bits of register rs2 to memory
     else if (funct3 == SW) {
-        puts("Sw");
+        //puts("Sw");
         unsigned int bit_32 = regis[rs2];
-    //    cout<<"address: "<<address<<" result: "<<bit_32<<endl;
+        //    cout<<"Address: "<<address<<" Result: "<<bit_32<<endl;
         mem[address + 3] = (bit_32 >> 24);
         mem[address + 2] = ((bit_32 >> 16) & 255u);
         mem[address + 1] = ((bit_32 >> 8) & 255u);
@@ -263,23 +263,27 @@ void FormatB(unsigned int order, int opcode) {
     // cout<<imm<<endl;
     //branch instructions compare two registers
     if (funct3 == BEQ) {//take the branch if register rs1 and rs2 are equal
-        puts("Beq");
-        if (regis[rs1] == regis[rs2]) PC = PC + imm - 4;
+        //puts("Beq");
+        if (regis[rs1] == regis[rs2]) {
+            PC = PC + imm - 4;
+            std::cout << "Beq! PC: " << PC + 4<<'\n';
+        }
     } else if (funct3 == BNE) {//take the branch if register rs1 and rs2 are unequal
-        puts("Bne");
-        if (regis[rs1] != regis[rs2])PC = PC + imm - 4;
+        //puts("Bne");
+        if (regis[rs1] != regis[rs2]) { PC = PC + imm - 4;std::cout << "Bne! PC: " << PC + 4<<'\n'; }
     } else if (funct3 == BLT) {//branch less than
-        puts("Blt");
-        if (int(regis[rs1]) < int(regis[rs2]))PC = PC + imm - 4;
+        //puts("Blt");
+        //      cout<<"rs1: "<<rs1<<" rs2: "<<rs2<<" regis[rs1]: "<<regis[rs1]<<" regis[rs2]: "<<regis[rs2]<<endl;
+        if (int(regis[rs1]) < int(regis[rs2])){ PC = PC + imm - 4;std::cout << "Blt! PC: " << PC + 4<<'\n'; }
     } else if (funct3 == BGE) {//branch greater than or equal
-        puts("Bge");
-        if (int(regis[rs1]) >= int(regis[rs2]))PC = PC + imm - 4;
+        //puts("Bge");
+        if (int(regis[rs1]) >= int(regis[rs2])){ PC = PC + imm - 4;std::cout << "Bge! PC: " << PC + 4<<'\n'; }
     } else if (funct3 == BLTU) {//branch less than unsigned
-        puts("Bltu");
-        if (regis[rs1] < regis[rs2])PC = PC + imm - 4;
+        //puts("Bltu");
+        if (regis[rs1] < regis[rs2]){ PC = PC + imm - 4;std::cout << "Bltu! PC: " << PC + 4<<'\n'; }
     } else if (funct3 == BGEU) {//branch greater than or equal unsigned
-        puts("Bgeu");
-        if (regis[rs1] >= regis[rs2])PC = PC + imm - 4;
+        //puts("Bgeu");
+        if (regis[rs1] >= regis[rs2]){ PC = PC + imm - 4;std::cout << "Bgeu! PC: " << PC + 4<<'\n'; }
     }
     PC += 4;
 }
@@ -289,10 +293,10 @@ void FormatU(unsigned int order, int opcode) {
     unsigned int rd = get_num(11, 7, order);
     unsigned int imm = (get_num(31, 12, order) << 12);
     if (opcode == LUI) {//Load From Immediate
-        puts("Lui");
+        //puts("Lui");
         regis[rd] = imm;
     } else if (opcode == AUIPC) {//Add Upper Immediate to PC
-        puts("Auipc");
+        //puts("Auipc");
         regis[rd] = imm + PC;
     }
     PC += 4;
@@ -304,17 +308,19 @@ void FormatJ(unsigned int order, int opcode) {
     unsigned int imm = (get_num(20, 20, order) << 11) + (get_num(30, 21, order) << 1) + (get_num(19, 12, order) << 12);
     if (order >> 31)for (int i = 31; i >= 20; i--)imm += (1 << i);
     if (opcode == JAL) {// jump and link
-        puts("Jal");
+        //puts("Jal");
         regis[rd] = PC + 4;
         PC = PC + imm;
     }
 }
-void getReg(){
-    for(int i=0;i<32;i++){
-        std::cout<<regis[i]<<" ";
+
+void getReg() {
+    for (int i = 0; i < 32; i++) {
+        std::cout << regis[i] << " ";
     }
-    std::cout<<std::endl;
+    std::cout << std::endl;
 }
+
 void parser(unsigned int order) {
     if (order == 0x0ff00513u) {
         cout << (regis[10] & 255u) << endl;
@@ -340,7 +346,7 @@ void set_memory(char first) {
 }
 
 int main() {
-    freopen("expr.data", "r", stdin);
+    freopen("qsort.data", "r", stdin);
     freopen("ans.out", "w", stdout);
     string num;
     char first_char;
@@ -354,14 +360,17 @@ int main() {
             des += 4;
         }
     }
+    int i = 0;
     while (1) {
-      //  printf("%04x\n",PC);
-       // cout << (regis[10] & 255u) << endl;
-       // cout<<"regis[1]: "<<regis[1]<<endl;
+        i++;
+        //     printf("%04x ",PC);
+        // cout << (regis[10] & 255u) << endl;
+        // cout<<"regis[1]: "<<regis[1]<<endl;
         order = (mem[PC] & ((1 << 9) - 1)) + ((mem[PC + 1] & ((1 << 17) - 1)) << 8) +
                 ((mem[PC + 2] & ((1 << 25) - 1)) << 16) + (mem[PC + 3] << 24);
+        //    cout<<order<<" ";
         parser(order);
         regis[0] = 0;
-        getReg();
+   //     getReg();
     }
 }

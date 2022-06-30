@@ -125,13 +125,13 @@ private:
 public:
     void reset() {
         for (int i = 0; i < len; i++) LSB[i].State = empty;
-        loadBus.time = 0,storeBus.time=0;
+        loadBus.time = 0, storeBus.time = 0;
     }
 
     void insert(int entry, unsigned int order) {
         int i = 0;
         for (; i < len; i++)if (LSB[i].State == empty)break;
-        LSB[i].Dest = entry, LSB[i].State = waiting, LSB[i].A = getImm(order),  LSB[i].Op = order;
+        LSB[i].Dest = entry, LSB[i].State = waiting, LSB[i].A = getImm(order), LSB[i].Op = order;
         LSB[i].clock = Clock;
         unsigned int opcode = getOpcode(order);
         int rs1 = getRs1(order);
@@ -154,9 +154,9 @@ public:
     void commit(int entry) {
         for (int i = 0; i < len; i++) {
             if (LSB[i].Dest == entry) {
-                LSB[i].State=storing;
-                storeBus.time=3;
-                storeBus.i=i;
+                LSB[i].State = storing;
+                storeBus.time = 3;
+                storeBus.i = i;
                 break;
             }
         }
@@ -164,14 +164,14 @@ public:
 
     bool runStore() {
         // if (storeBus.time)puts("www");
-        if(!storeBus.time)return true;
+        if (!storeBus.time)return true;
         else {
             storeBus.time--;
             if (!storeBus.time) {
                 int i = storeBus.i;
                 Store(LSB[i].Op, LSB[i].Address, LSB[i].Result);
                 //       puts("Store");
-              //          std::cout << "Address:" << LSB[i].Address << " Result: " << LSB[i].Result << std::endl;
+                //          std::cout << "Address:" << LSB[i].Address << " Result: " << LSB[i].Result << std::endl;
                 LSB[i].State = empty;
                 return true;
             }
@@ -193,7 +193,7 @@ public:
                         flag = false;
                         break;
                     }
-                    if (LSB[j].State == waitingStore || LSB[j].State == storing) {
+                    if (LSB[j].State == waitingStore || LSB[j].State == storing || LSB[j].State == waitingBroadcast) {
                         if (LSB[i].Address == LSB[j].Address)
                             if (LSB[j].clock < t)
                                 t = LSB[j].clock, LSB[i].Result = LSB[j].Result;
@@ -290,6 +290,7 @@ public:
         if (type != R)rs[i].A = getImm(order);
         if (type == R || type == I || type == B) {
             int rs1 = getRs1(order);
+      //      if (rs1 < 0 || rs1 > 31)puts("!");
             if (RegisterStat[rs1].Busy) {
                 int h = RegisterStat[rs1].Reorder;
                 if (ROB.rob[h].Ready)rs[i].Vj = ROB.rob[h].Value;
@@ -298,6 +299,7 @@ public:
         }
         if (type == R || type == B) {
             int rs2 = getRs2(order);
+     //       if (rs2 < 0 || rs2 > 31)puts("!");
             if (RegisterStat[rs2].Busy) {
                 int h = RegisterStat[rs2].Reorder;
                 if (ROB.rob[h].Ready)rs[i].Vk = ROB.rob[h].Value;
@@ -321,8 +323,9 @@ public:
 
     bool write() {
         for (int i = 0; i < len; i++) {
+            //!B指令没有rd吧
             if (rs[i].State == finished) {
-                if(getRd(rs[i].Op)==0)rs[i].Result=0;
+                if (getType(rs[i].Op) != B && getRd(rs[i].Op) == 0)rs[i].Result = 0;
                 CDB = (CommonDataBus) {rs[i].Dest, rs[i].Result, rs[i].PC};
                 rs[i].State = empty;
                 return true;
@@ -380,12 +383,13 @@ void WriteResult() {
 
 void Commit() {
     Reorder_Buffer rob = ROB.head();
-    if(!LSBuffer.runStore())return;
+    if (!LSBuffer.runStore())return;
     if (!rob.Ready)return;
+    //   std::cout<<rob.Instruct<<std::endl;
     //   std::cout<<std::endl;
     if (rob.Instruct == 0x0ff00513u) {
         std::cout << (reg[10] & 255u) << std::endl;
-   //     showReg();
+        //     showReg();
         exit(0);
     }
 //    std::cout << (reg[10] & 255u) << std::endl;
@@ -402,12 +406,14 @@ void Commit() {
     } else {
         if (rob.Type == B && rob.Value) {
             PC = rob.PC;
+     //       getCommand(rob.Instruct);
+      //      std::cout << "PC: " << PC << '\n';
             reset();
         } else ROB.pop();
     }
-  //  printf("%04x ",PC);
-  //  getCommand(rob.Instruct);
-  //  showReg();
+    //  printf("%04x ",PC);
+//    getCommand(rob.Instruct);
+//    showReg();
 }
 
 

@@ -64,7 +64,7 @@ void FormatI(unsigned int order, unsigned int rs1, unsigned int imm, unsigned in
         if (funct3 == ADDI) {//add immediate(word)
             //puts("Addi");
             result = rs1 + imm;
-          //  std::cout << "regis[rs1]: " << rs1 << " imm: " << imm << std::endl;
+            // std::cout << "regis[rs1]: " << rs1 << " imm: " << imm << std::endl;
         } else if (funct3 == SLTI) {//set less than immediate
             //puts("Slti");
             result = (int(rs1) < int(imm));
@@ -108,6 +108,7 @@ void FormatB(unsigned int order, unsigned int rs1, unsigned int rs2, unsigned in
     } else if (funct3 == BLT) {//branch less than
         //puts("Blt");
         if (int(rs1) < int(rs2))result = 1, pc += imm;
+    //    std::cout << " regis[rs1]: " << rs1 << " regis[rs2]: " << rs2 << std::endl;
     } else if (funct3 == BGE) {//branch greater than or equal
         //puts("Bge");
         if (int(rs1) >= int(rs2))result = 1, pc += imm;
@@ -173,7 +174,7 @@ void FormatS(unsigned int order, unsigned int imm, unsigned int rs1, unsigned in
 
 void Load(unsigned int order, unsigned int address, unsigned int &result) {
     unsigned int funct3 = get_num(14, 12, order);
-    if(address>=1e6)return;
+    if (address >= 1e6)return;
     if (funct3 == LB) {
         //puts("Lb");
         unsigned int bit_8 = mem[address];
@@ -192,11 +193,12 @@ void Load(unsigned int order, unsigned int address, unsigned int &result) {
         unsigned int bit_32 =
                 mem[address] | (mem[address + 1] << 8) | (mem[address + 2] << 16) | (mem[address + 3] << 24);
         result = bit_32;
+   //     std::cout << "Address: " << address << " Result: " << result << std::endl;
     } else if (funct3 == LBU) {//load byte unsigned
         //load 8 byte value form memory
         //than zero-extend to 32-bits before stording in rd;
         //puts("Lbu");
-   //     std::cout<<"Address: "<<address<<std::endl;
+        //     std::cout<<"Address: "<<address<<std::endl;
         unsigned int bit_8 = (mem[address] & ((1 << 9) - 1));
         result = bit_8;
     } else if (funct3 == LHU) {
