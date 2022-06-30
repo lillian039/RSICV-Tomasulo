@@ -6,7 +6,7 @@ using namespace std;
 
 
 int main() {
- //   freopen("basicopt1.data", "r", stdin);
+ //   freopen("expr.data", "r", stdin);
  //   freopen("me.out", "w", stdout);
     getCommand();
     reset();

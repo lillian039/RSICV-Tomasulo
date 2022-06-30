@@ -173,6 +173,7 @@ void FormatS(unsigned int order, unsigned int imm, unsigned int rs1, unsigned in
 
 void Load(unsigned int order, unsigned int address, unsigned int &result) {
     unsigned int funct3 = get_num(14, 12, order);
+    if(address>=1e6)return;
     if (funct3 == LB) {
         //puts("Lb");
         unsigned int bit_8 = mem[address];
@@ -195,6 +196,7 @@ void Load(unsigned int order, unsigned int address, unsigned int &result) {
         //load 8 byte value form memory
         //than zero-extend to 32-bits before stording in rd;
         //puts("Lbu");
+   //     std::cout<<"Address: "<<address<<std::endl;
         unsigned int bit_8 = (mem[address] & ((1 << 9) - 1));
         result = bit_8;
     } else if (funct3 == LHU) {

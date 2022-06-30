@@ -186,7 +186,7 @@ void FormatI(unsigned int order, int opcode) {
         if (funct3 == ADDI) {//add immediate(word)
             puts("Addi");
             regis[rd] = regis[rs1] + imm;
-            std::cout <<"rs1: "<<rs1<<" regis[rs1]: " << regis[rs1]  << " imm: " << imm << std::endl;
+       //     std::cout <<"rs1: "<<rs1<<" regis[rs1]: " << regis[rs1]  << " imm: " << imm << std::endl;
         } else if (funct3 == SLTI) {//set less than immediate
             puts("Slti");
             regis[rd] = (int(regis[rs1]) < int(imm));
@@ -340,8 +340,8 @@ void set_memory(char first) {
 }
 
 int main() {
-    freopen("array_test1.data", "r", stdin);
-    freopen("ans1.out", "w", stdout);
+    freopen("expr.data", "r", stdin);
+    freopen("ans.out", "w", stdout);
     string num;
     char first_char;
     unsigned int order;
@@ -356,12 +356,12 @@ int main() {
     }
     while (1) {
       //  printf("%04x\n",PC);
-        cout << (regis[10] & 255u) << endl;
+       // cout << (regis[10] & 255u) << endl;
        // cout<<"regis[1]: "<<regis[1]<<endl;
         order = (mem[PC] & ((1 << 9) - 1)) + ((mem[PC + 1] & ((1 << 17) - 1)) << 8) +
                 ((mem[PC + 2] & ((1 << 25) - 1)) << 16) + (mem[PC + 3] << 24);
         parser(order);
-        getReg();
         regis[0] = 0;
+        getReg();
     }
 }

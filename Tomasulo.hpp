@@ -171,7 +171,7 @@ public:
                 int i = storeBus.i;
                 Store(LSB[i].Op, LSB[i].Address, LSB[i].Result);
                 //       puts("Store");
-                //        std::cout << "Address:" << LSB[i].Address << " Result: " << LSB[i].Result << std::endl;
+              //          std::cout << "Address:" << LSB[i].Address << " Result: " << LSB[i].Result << std::endl;
                 LSB[i].State = empty;
                 return true;
             }
@@ -406,9 +406,8 @@ void Commit() {
         } else ROB.pop();
     }
   //  printf("%04x ",PC);
-   // getCommand(rob.Instruct);
+  //  getCommand(rob.Instruct);
   //  showReg();
-    //  showReg();
 }
 
 
