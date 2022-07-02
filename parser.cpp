@@ -266,24 +266,29 @@ void FormatB(unsigned int order, int opcode) {
         //puts("Beq");
         if (regis[rs1] == regis[rs2]) {
             PC = PC + imm - 4;
-            std::cout << "Beq! PC: " << PC + 4<<'\n';
         }
+        else   std::cout << "Beq! PC: " << PC + 4<<'\n';
     } else if (funct3 == BNE) {//take the branch if register rs1 and rs2 are unequal
         //puts("Bne");
-        if (regis[rs1] != regis[rs2]) { PC = PC + imm - 4;std::cout << "Bne! PC: " << PC + 4<<'\n'; }
+        if (regis[rs1] != regis[rs2]) { PC = PC + imm - 4; }
+        else std::cout << "Bne! PC: " << PC + 4<<'\n';
     } else if (funct3 == BLT) {//branch less than
         //puts("Blt");
         //      cout<<"rs1: "<<rs1<<" rs2: "<<rs2<<" regis[rs1]: "<<regis[rs1]<<" regis[rs2]: "<<regis[rs2]<<endl;
-        if (int(regis[rs1]) < int(regis[rs2])){ PC = PC + imm - 4;std::cout << "Blt! PC: " << PC + 4<<'\n'; }
+        if (int(regis[rs1]) < int(regis[rs2])){ PC = PC + imm - 4; }
+        else std::cout << "Blt! PC: " << PC + 4<<'\n';
     } else if (funct3 == BGE) {//branch greater than or equal
         //puts("Bge");
-        if (int(regis[rs1]) >= int(regis[rs2])){ PC = PC + imm - 4;std::cout << "Bge! PC: " << PC + 4<<'\n'; }
+        if (int(regis[rs1]) >= int(regis[rs2])){ PC = PC + imm - 4; }
+        else std::cout << "Bge! PC: " << PC + 4<<'\n';
     } else if (funct3 == BLTU) {//branch less than unsigned
         //puts("Bltu");
-        if (regis[rs1] < regis[rs2]){ PC = PC + imm - 4;std::cout << "Bltu! PC: " << PC + 4<<'\n'; }
+        if (regis[rs1] < regis[rs2]){ PC = PC + imm - 4; }
+        else std::cout << "Bltu! PC: " << PC + 4<<'\n';
     } else if (funct3 == BGEU) {//branch greater than or equal unsigned
         //puts("Bgeu");
-        if (regis[rs1] >= regis[rs2]){ PC = PC + imm - 4;std::cout << "Bgeu! PC: " << PC + 4<<'\n'; }
+        if (regis[rs1] >= regis[rs2]){ PC = PC + imm - 4; }
+        else std::cout << "Bgeu! PC: " << PC + 4<<'\n';
     }
     PC += 4;
 }
@@ -346,7 +351,7 @@ void set_memory(char first) {
 }
 
 int main() {
-    freopen("qsort.data", "r", stdin);
+    freopen("array_test1.data", "r", stdin);
     freopen("ans.out", "w", stdout);
     string num;
     char first_char;
@@ -363,7 +368,7 @@ int main() {
     int i = 0;
     while (1) {
         i++;
-        //     printf("%04x ",PC);
+       //      printf("%04x ",PC);
         // cout << (regis[10] & 255u) << endl;
         // cout<<"regis[1]: "<<regis[1]<<endl;
         order = (mem[PC] & ((1 << 9) - 1)) + ((mem[PC + 1] & ((1 << 17) - 1)) << 8) +

@@ -103,7 +103,8 @@ void FormatB(unsigned int order, unsigned int rs1, unsigned int rs2, unsigned in
         //puts("Beq");
         if (rs1 == rs2) result = 1, pc += imm;
     } else if (funct3 == BNE) {//take the branch if register rs1 and rs2 are unequal
-        //puts("Bne");
+     //   puts("Bne");
+     //   std::cout << " regis[rs1]: " << rs1 << " regis[rs2]: " << rs2 << std::endl;
         if (rs1 != rs2)result = 1, pc += imm;
     } else if (funct3 == BLT) {//branch less than
         //puts("Blt");

@@ -33,7 +33,7 @@ struct Reorder_Buffer {
     int Entry;
     int Type;
     bool Ready;
-    unsigned int Instruct, Des, Value, PC;
+    unsigned int Instruct, Des, Value, PC_now, PC_des;
 };
 
 struct Reorder_Buffers {
@@ -66,14 +66,13 @@ public:
         return (size + top) % len;
     }
 
-    void insert(unsigned int order) {
+    void insert(unsigned int order, int pc_now) {
         size++;
         int rear = (size - 1 + top) % len;
         rob[rear].Entry = rear;//指令编号
         rob[rear].Type = getType(order);
-        rob[rear].PC = PC;
+        rob[rear].PC_now = pc_now;
         rob[rear].Instruct = order;
-        // if (rob[rear].Type == HALT)rob[rear].Ready = true;
         if (rob[rear].Type != S && rob[rear].Type != B) {
             rob[rear].Des = getRd(order);
             RegisterStat[rob[rear].Des].Reorder = rob[rear].Entry;
@@ -85,14 +84,16 @@ public:
     void broadcast() {
         rob[CDB.entry].Ready = true;
         rob[CDB.entry].Value = CDB.result;
-        rob[CDB.entry].PC = CDB.pc;
+        rob[CDB.entry].PC_des = CDB.pc;
+        unsigned order = getOpcode(rob[CDB.entry].Instruct);
+        if (order == JALR || order == JAL)ISQ.reStart(rob[CDB.entry].PC_des);
     }
 
     void traverse() {
         for (int i = 0; i < size; i++) {
             int idx = (top + i) % len;
             std::cout << "Ready: " << rob[idx].Ready << " Order: " << rob[idx].Instruct << " PC: ";
-            printf("%04x", rob[idx].PC);
+            printf("%04x", rob[idx].PC_now);
             std::cout << " Result: " << rob[idx].Value << " Des: " << rob[idx].Des;
             std::cout << std::endl;
             getCommand(rob[idx].Instruct);
@@ -163,15 +164,12 @@ public:
     }
 
     bool runStore() {
-        // if (storeBus.time)puts("www");
         if (!storeBus.time)return true;
         else {
             storeBus.time--;
             if (!storeBus.time) {
                 int i = storeBus.i;
                 Store(LSB[i].Op, LSB[i].Address, LSB[i].Result);
-                //       puts("Store");
-                //          std::cout << "Address:" << LSB[i].Address << " Result: " << LSB[i].Result << std::endl;
                 LSB[i].State = empty;
                 return true;
             }
@@ -290,7 +288,7 @@ public:
         if (type != R)rs[i].A = getImm(order);
         if (type == R || type == I || type == B) {
             int rs1 = getRs1(order);
-      //      if (rs1 < 0 || rs1 > 31)puts("!");
+            //      if (rs1 < 0 || rs1 > 31)puts("!");
             if (RegisterStat[rs1].Busy) {
                 int h = RegisterStat[rs1].Reorder;
                 if (ROB.rob[h].Ready)rs[i].Vj = ROB.rob[h].Value;
@@ -299,7 +297,7 @@ public:
         }
         if (type == R || type == B) {
             int rs2 = getRs2(order);
-     //       if (rs2 < 0 || rs2 > 31)puts("!");
+            //       if (rs2 < 0 || rs2 > 31)puts("!");
             if (RegisterStat[rs2].Busy) {
                 int h = RegisterStat[rs2].Reorder;
                 if (ROB.rob[h].Ready)rs[i].Vk = ROB.rob[h].Value;
@@ -353,18 +351,25 @@ void reset() {
 }
 
 void Issue() {
-    unsigned int order = getOrder();
+    if (!ISQ.available()) {
+        ISQ.GetInstructMem();
+        return;
+    }
+    std::pair<unsigned, unsigned> t = ISQ.getCommand();
+    unsigned int order = t.first, pc_now = t.second;
+    ISQ.GetInstructMem();
     if (order == 0)return;
     if (getOpcode(order) == LOAD || getOpcode(order) == STORE) {
         if (!(LSBuffer.available() && ROB.available()))return;
+        ISQ.pop();
         LSBuffer.insert(ROB.getEmpty(), order);
-        ROB.insert(order);
+        ROB.insert(order, pc_now);
     } else {
         if (!(RS.available() && ROB.available()))return;
+        ISQ.pop();
         RS.insert(ROB.getEmpty(), order);
-        ROB.insert(order);
+        ROB.insert(order, pc_now);
     }
-    PC += 4;
 }
 
 void Execute() {
@@ -385,33 +390,23 @@ void Commit() {
     Reorder_Buffer rob = ROB.head();
     if (!LSBuffer.runStore())return;
     if (!rob.Ready)return;
-    //   std::cout<<rob.Instruct<<std::endl;
-    //   std::cout<<std::endl;
     if (rob.Instruct == 0x0ff00513u) {
         std::cout << (reg[10] & 255u) << std::endl;
-        //     showReg();
         exit(0);
     }
-//    std::cout << (reg[10] & 255u) << std::endl;
-    unsigned int opcode = getOpcode(rob.Instruct);
     if (rob.Type != S && rob.Type != B && rob.Des) {
-        //      std::cout<<" rd: "<<rob.Des<<std::endl;
         reg[rob.Des] = rob.Value;
         if (RegisterStat[rob.Des].Reorder == rob.Entry)RegisterStat[rob.Des].Busy = false;
     }
     if (rob.Type == S)LSBuffer.commit(rob.Entry);//可能还没有storing完就branch了？
-    if (rob.Type == J || opcode == JALR) {
-        PC = rob.PC;
-        reset();
-    } else {
-        if (rob.Type == B && rob.Value) {
-            PC = rob.PC;
-     //       getCommand(rob.Instruct);
-      //      std::cout << "PC: " << PC << '\n';
+    if (rob.Type == B ) {
+        if (Predicter.jump(rob.PC_now) ^ rob.Value) {
+            if (rob.Value)ISQ.reset(rob.PC_des);
+            else ISQ.reset(rob.PC_now+4);
             reset();
         } else ROB.pop();
-    }
-    //  printf("%04x ",PC);
+        Predicter.changeState(rob.Value, rob.PC_now);
+    } else ROB.pop();
 //    getCommand(rob.Instruct);
 //    showReg();
 }
