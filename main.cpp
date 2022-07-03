@@ -6,7 +6,7 @@ using namespace std;
 
 
 int main() {
- //   freopen("qsort.data", "r", stdin);
+ //   freopen("queens.data", "r", stdin);
  //   freopen("me.out", "w", stdout);
     getCommand();
     reset();

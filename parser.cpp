@@ -264,10 +264,10 @@ void FormatB(unsigned int order, int opcode) {
     //branch instructions compare two registers
     if (funct3 == BEQ) {//take the branch if register rs1 and rs2 are equal
         puts("Beq");
-        cout<<"rs1: "<<rs1<<" rs2: "<<rs2<<" regis[rs1]: "<<regis[rs1]<<" regis[rs2]: "<<regis[rs2]<<endl;
+    //    cout<<"rs1: "<<rs1<<" rs2: "<<rs2<<" regis[rs1]: "<<regis[rs1]<<" regis[rs2]: "<<regis[rs2]<<endl;
         if (regis[rs1] == regis[rs2]) {
             PC = PC + imm - 4;
-            printf("%04x ",PC);
+          //  printf("%04x ",PC);
         }
     //    else   std::cout << "Beq! PC: " << PC + 4<<'\n';
     } else if (funct3 == BNE) {//take the branch if register rs1 and rs2 are unequal
@@ -353,7 +353,7 @@ void set_memory(char first) {
 }
 
 int main() {
-    freopen("superloop.data", "r", stdin);
+    freopen("bulgarian.data", "r", stdin);
     freopen("ans.out", "w", stdout);
     string num;
     char first_char;
@@ -370,7 +370,6 @@ int main() {
     int i = 0;
     while (1) {
         i++;
-        if(i>=4000)break;
              printf("%04x ",PC);
         // cout << (regis[10] & 255u) << endl;
         // cout<<"regis[1]: "<<regis[1]<<endl;
@@ -379,6 +378,6 @@ int main() {
         //    cout<<order<<" ";
         parser(order);
         regis[0] = 0;
-       getReg();
+     //  getReg();
     }
 }

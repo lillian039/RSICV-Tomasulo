@@ -38,7 +38,7 @@ struct Reorder_Buffer {
 
 struct Reorder_Buffers {
 private:
-    static const int len = 8;
+    static const int len = 32;
 
     int size = 0, top = 0;
 public:
@@ -86,8 +86,8 @@ public:
     void broadcast() {
         rob[CDB.entry].Ready = true;
         rob[CDB.entry].Value = CDB.result;
-        rob[CDB.entry].PC_des = CDB.pc;
         unsigned order = getOpcode(rob[CDB.entry].Instruct);
+        if(rob[CDB.entry].Type==B||order == JALR || order == JAL)rob[CDB.entry].PC_des = CDB.pc;
         if (order == JALR || order == JAL)ISQ.reStart(rob[CDB.entry].PC_des);
     }
 
@@ -106,7 +106,7 @@ public:
 
 struct LS_Buffers {//load store buffer
 private:
-    static const int len = 8;
+    static const int len = 32;
     struct LS_Buffer {// calculate address
         int State;
         unsigned int Op;
@@ -264,7 +264,7 @@ public:
 
 struct Reservation_Stations {//RS
 private:
-    static const int len = 8;
+    static const int len = 32;
     struct Reservation_Station {
         int State;
         unsigned int Op;
@@ -405,18 +405,22 @@ void Commit() {
     if (rob.Type == S)LSBuffer.commit(rob.Entry);//可能还没有storing完就branch了？
     if (rob.Type == B) {
       //  if(rob.Value)puts("!");
+        unsigned des= getImm(rob.Instruct)+rob.PC_now;
+      //  printf("pc_now: %04x ", rob.PC_now);
+       // printf("pc_des: %04x\n", des);
+     //   if(des!=rob.PC_des&&rob.PC_now!=rob.PC_des) {
+     //       printf("pc_des: %04x ", rob.PC_des);
+    //        printf("des: %04x Entry: %d pc_now: %04x\n", des, rob.Entry, rob.PC_now);
+    //    }
         if (Predicter.jump(rob.PC_now) ^ rob.Value) {
-            unsigned des= getImm(rob.Instruct)+rob.PC_now;
-        //    printf("%04x ", rob.PC_des);
-         //   printf("%04x ", des);
             if (rob.Value)ISQ.reset(des);
             else ISQ.reset(rob.PC_now + 4);
             reset();
         } else ROB.pop();
         Predicter.changeState(rob.Value, rob.PC_now);
     } else ROB.pop();
-   // printf("%04x ", rob.PC_now);
-  //  getCommand(rob.Instruct);
+  //  printf("%04x ", rob.PC_now);
+ //   getCommand(rob.Instruct);
  //   showReg();
 }
 
