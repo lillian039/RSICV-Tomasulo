@@ -3,6 +3,7 @@
 
 unsigned int mem[1000000], PC = 0, reg[32];
 unsigned int Clock;
+unsigned int jsum=0,bsum=0,bwrong=0;
 
 unsigned int me_to_int(std::string num) {
     unsigned int d = 0;

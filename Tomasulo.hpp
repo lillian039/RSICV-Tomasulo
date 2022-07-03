@@ -380,6 +380,10 @@ void Commit() {
     if (!rob.Ready)return;
     if (rob.Instruct == 0x0ff00513u) {
         std::cout << (reg[10] & 255u) << std::endl;
+       /* std::cout<<"total clock: "<<Clock<<std::endl;
+        std::cout<<"total Branch: "<<bsum<<std::endl;
+        std::cout<<"correct Predict: "<<bsum-bwrong<<std::endl;
+        printf("%.2lf",double(bsum-bwrong)/bsum);*/
         exit(0);
     }
     if (rob.Type != S && rob.Type != B && rob.Des) {
@@ -388,8 +392,10 @@ void Commit() {
     }
     if (rob.Type == S)LSBuffer.commit(rob.Entry);//可能还没有storing完就branch了？
     if (rob.Type == B) {
+        bsum++;
         unsigned des = getImm(rob.Instruct) + rob.PC_now;
         if (Predicter.jump(rob.PC_now) ^ rob.Value) {
+            bwrong++;
             if (rob.Value)ISQ.reset(des);
             else ISQ.reset(rob.PC_now + 4);
             reset();

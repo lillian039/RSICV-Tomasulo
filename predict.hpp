@@ -9,12 +9,12 @@ class Branch_Target_Buffers {
 private:
     const unsigned int prime = 337;
     struct Branch_Target_Buffer {
-        int sc = weaklyTaken;//saturating counter 二位饱和计数器
+        int sc = weaklyNotTaken;//saturating counter 二位饱和计数器
     } BTB[4000];
 
 
     int getHash(const unsigned &pc) {
-        return ((pc & 127) * prime) % 4000;
+        return (1ll * pc * prime) % 4000;
     }
 
 public:
@@ -53,7 +53,6 @@ public:
     }
 
     void reset(unsigned des) {
-        //   puts("reset!");
         top = 0, size = 0, stop = false, PC = des;
     }
 
@@ -73,7 +72,7 @@ public:
 
     //for JALR and JAL
     void reStart(unsigned int des) {
-        PC = des,stop = false;
+        PC = des, stop = false;
     }
 
     std::pair<unsigned, unsigned> getCommand() {
@@ -81,7 +80,7 @@ public:
     }
 
     void pop() {
-        top = (top + 1) % len,size--;
+        top = (top + 1) % len, size--;
     }
 } ISQ;
 
