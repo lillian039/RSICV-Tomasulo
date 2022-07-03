@@ -376,8 +376,20 @@ int main() {
         order = (mem[PC] & ((1 << 9) - 1)) + ((mem[PC + 1] & ((1 << 17) - 1)) << 8) +
                 ((mem[PC + 2] & ((1 << 25) - 1)) << 16) + (mem[PC + 3] << 24);
         //    cout<<order<<" ";
+
         parser(order);
+        if (PC == 0x12ac) {
+            getReg();
+            //    ROB.traverse();
+        }
+        if (PC == 0x1284) {
+            getReg();
+           /* puts("!");
+            std::cout<<rob.Instruct<<std::endl;
+            showReg();*/
+            //    ROB.traverse();
+        }
         regis[0] = 0;
-     //  getReg();
+     //
     }
 }
