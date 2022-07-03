@@ -1,7 +1,7 @@
 #ifndef TESTCASES_FOR_RISCV_RAM_HPP
 #define TESTCASES_FOR_RISCV_RAM_HPP
 
-unsigned int mem[1000000], PC = 0, reg[32],des=0;
+unsigned int mem[1000000], PC = 0, reg[32];
 unsigned int Clock;
 
 unsigned int me_to_int(std::string num) {
@@ -26,6 +26,7 @@ void set_memory(char first, int des) {
 void getCommand() {
     std::string num;
     char first_char;
+    unsigned des=0;
     while (std::cin >> first_char) {
         if (first_char == '@') {
             std::cin >> num;

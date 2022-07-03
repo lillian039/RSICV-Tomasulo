@@ -131,11 +131,11 @@ void getCommand(const unsigned int &order) {
     else if (opcode == JAL)puts("Jal");
     else if (opcode == 0b1100011) {
         if (funct3 == BEQ)puts("Beq");
-        else if (funct3 == BNE)std::cout<<"Bne! ";
-        else if (funct3 == BLT)std::cout<<"Blt! ";
-        else if (funct3 == BGE)std::cout<<"Bge! ";
-        else if (funct3 == BLTU)std::cout<<"Bltu! ";
-        else if (funct3 == BGEU)std::cout<<"Bgeu! ";
+        else if (funct3 == BNE)puts("Bne");//std::cout<<"Bne! ";
+        else if (funct3 == BLT)puts("Blt");//std::cout<<"Blt! ";
+        else if (funct3 == BGE)puts("Bge");//std::cout<<"Bge! ";
+        else if (funct3 == BLTU)puts("Bltu");//std::cout<<"Bltu! ";
+        else if (funct3 == BGEU)puts("Bgeu");//std::cout<<"Bgeu! ";
     } else if (opcode == 0b0010011) {
         if (funct3 == ADDI) puts("Addi");
         else if (funct3 == SLTI) puts("Slti");

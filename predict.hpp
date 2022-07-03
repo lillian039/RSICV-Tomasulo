@@ -14,7 +14,7 @@ private:
 
 
     int getHash(const unsigned &pc) {
-        return (pc * prime) % 4000;
+        return ((pc & 127) * prime) % 4000;
     }
 
 public:
@@ -34,7 +34,7 @@ public:
 
 struct InstructionQueue {
 private:
-    static const int len = 16;
+    static const int len = 8;
     int top = 0, size = 0;
     bool stop = false;
 
@@ -53,7 +53,7 @@ public:
     }
 
     void reset(unsigned des) {
-     //   puts("reset!");
+        //   puts("reset!");
         top = 0, size = 0, stop = false, PC = des;
     }
 
@@ -78,7 +78,6 @@ public:
     }
 
     std::pair<unsigned, unsigned> getCommand() {
-     //   printf("%04x\n", isq[top].pc);
         return std::make_pair(isq[top].order, isq[top].pc);
     }
 

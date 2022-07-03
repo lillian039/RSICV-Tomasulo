@@ -64,7 +64,7 @@ void FormatI(unsigned int order, unsigned int rs1, unsigned int imm, unsigned in
         if (funct3 == ADDI) {//add immediate(word)
             //puts("Addi");
             result = rs1 + imm;
-            // std::cout << "regis[rs1]: " << rs1 << " imm: " << imm << std::endl;
+            //std::cout << "regis[rs1]: " << rs1 << " imm: " << imm << std::endl;
         } else if (funct3 == SLTI) {//set less than immediate
             //puts("Slti");
             result = (int(rs1) < int(imm));
@@ -101,10 +101,13 @@ void FormatB(unsigned int order, unsigned int rs1, unsigned int rs2, unsigned in
     //branch instructions compare two registers
     if (funct3 == BEQ) {//take the branch if register rs1 and rs2 are equal
         //puts("Beq");
-        if (rs1 == rs2) result = 1, pc += imm;
+    //    std::cout << " regis[rs1]: " << rs1 << " regis[rs2]: " << rs2 << std::endl;
+        if (rs1 == rs2) {
+            result = 1, pc += imm;
+      //      printf("%04x ", pc);
+        }
     } else if (funct3 == BNE) {//take the branch if register rs1 and rs2 are unequal
      //   puts("Bne");
-     //   std::cout << " regis[rs1]: " << rs1 << " regis[rs2]: " << rs2 << std::endl;
         if (rs1 != rs2)result = 1, pc += imm;
     } else if (funct3 == BLT) {//branch less than
         //puts("Blt");

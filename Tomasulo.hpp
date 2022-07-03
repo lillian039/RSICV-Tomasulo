@@ -66,7 +66,7 @@ public:
         return (size + top) % len;
     }
 
-    void insert(unsigned int order, int pc_now) {
+    void insert(unsigned int order, unsigned int pc_now) {
         size++;
         int rear = (size - 1 + top) % len;
         rob[rear].Entry = rear;//指令编号
@@ -75,8 +75,10 @@ public:
         rob[rear].Instruct = order;
         if (rob[rear].Type != S && rob[rear].Type != B) {
             rob[rear].Des = getRd(order);
-            RegisterStat[rob[rear].Des].Reorder = rob[rear].Entry;
-            RegisterStat[rob[rear].Des].Busy = true;
+            if (rob[rear].Des) {
+                RegisterStat[rob[rear].Des].Reorder = rob[rear].Entry;
+                RegisterStat[rob[rear].Des].Busy = true;
+            }
             rob[rear].Ready = false;
         }
     }
@@ -170,6 +172,8 @@ public:
             if (!storeBus.time) {
                 int i = storeBus.i;
                 Store(LSB[i].Op, LSB[i].Address, LSB[i].Result);
+                //     puts("Store");
+                //     std::cout << "Address:" << LSB[i].Address << " Result: " << LSB[i].Result << std::endl;
                 LSB[i].State = empty;
                 return true;
             }
@@ -184,10 +188,11 @@ public:
         }
         for (int i = 0; i < len; i++)
             if (LSB[i].State == addressed) {
-                int t = LSB[i].clock;
+                unsigned int t = LSB[i].clock;
+                unsigned int tconst = LSB[i].clock;
                 bool flag = true;
                 for (int j = 0; j < len; j++) {
-                    if (LSB[j].State == waiting && getOpcode(LSB[j].Op) == STORE && LSB[j].clock < t) {
+                    if (LSB[j].State == waiting && getOpcode(LSB[j].Op) == STORE && LSB[j].clock < tconst) {
                         flag = false;
                         break;
                     }
@@ -200,14 +205,14 @@ public:
                 if (!flag)continue;
                 if (t != LSB[i].clock) {
                     LSB[i].State = finished;
-                    //          puts("Load");
-                    //          std::cout << "Address:" << LSB[i].Address << " Result: " << LSB[i].Result << std::endl;
+                    //                 puts("Load");
+                    //                  std::cout << "Address:" << LSB[i].Address << " Result: " << LSB[i].Result << std::endl;
                     continue;
                 } else {
                     if (loadBus.time)continue;
                     Load(LSB[i].Op, LSB[i].Address, LSB[i].Result);
-                    //        puts("Load");
-                    //        std::cout << "Address:" << LSB[i].Address << " Result: " << LSB[i].Result << std::endl;
+                    //               puts("Load");
+                    //               std::cout << "Address:" << LSB[i].Address << " Result: " << LSB[i].Result << std::endl;
                     LSB[i].State = loading;
                     loadBus.time = 3, loadBus.i = i;
                 }
@@ -233,6 +238,7 @@ public:
     bool write() {
         for (int i = 0; i < len; i++) {
             if (LSB[i].State == finished) {
+                if (getRd(LSB[i].Op) == 0)LSB[i].Result = 0;
                 CDB = (CommonDataBus) {LSB[i].Dest, LSB[i].Result};
                 LSB[i].State = empty;
                 return true;
@@ -279,16 +285,15 @@ public:
         for (int i = 0; i < len; i++)rs[i].State = empty;
     }
 
-    void insert(int entry, unsigned int order) {
+    void insert(int entry, unsigned int order, unsigned pc_now) {
         int i = 0;
         for (; i < len; i++) if (rs[i].State == empty)break;
-        rs[i].Dest = entry, rs[i].State = waiting, rs[i].Op = order, rs[i].PC = PC;
+        rs[i].Dest = entry, rs[i].State = waiting, rs[i].Op = order, rs[i].PC = pc_now;
         rs[i].Qk = -1, rs[i].Qj = -1;
         int type = getType(order);
         if (type != R)rs[i].A = getImm(order);
         if (type == R || type == I || type == B) {
             int rs1 = getRs1(order);
-            //      if (rs1 < 0 || rs1 > 31)puts("!");
             if (RegisterStat[rs1].Busy) {
                 int h = RegisterStat[rs1].Reorder;
                 if (ROB.rob[h].Ready)rs[i].Vj = ROB.rob[h].Value;
@@ -297,7 +302,6 @@ public:
         }
         if (type == R || type == B) {
             int rs2 = getRs2(order);
-            //       if (rs2 < 0 || rs2 > 31)puts("!");
             if (RegisterStat[rs2].Busy) {
                 int h = RegisterStat[rs2].Reorder;
                 if (ROB.rob[h].Ready)rs[i].Vk = ROB.rob[h].Value;
@@ -367,7 +371,7 @@ void Issue() {
     } else {
         if (!(RS.available() && ROB.available()))return;
         ISQ.pop();
-        RS.insert(ROB.getEmpty(), order);
+        RS.insert(ROB.getEmpty(), order, pc_now);
         ROB.insert(order, pc_now);
     }
 }
@@ -399,16 +403,21 @@ void Commit() {
         if (RegisterStat[rob.Des].Reorder == rob.Entry)RegisterStat[rob.Des].Busy = false;
     }
     if (rob.Type == S)LSBuffer.commit(rob.Entry);//可能还没有storing完就branch了？
-    if (rob.Type == B ) {
+    if (rob.Type == B) {
+      //  if(rob.Value)puts("!");
         if (Predicter.jump(rob.PC_now) ^ rob.Value) {
-            if (rob.Value)ISQ.reset(rob.PC_des);
-            else ISQ.reset(rob.PC_now+4);
+            unsigned des= getImm(rob.Instruct)+rob.PC_now;
+        //    printf("%04x ", rob.PC_des);
+         //   printf("%04x ", des);
+            if (rob.Value)ISQ.reset(des);
+            else ISQ.reset(rob.PC_now + 4);
             reset();
         } else ROB.pop();
         Predicter.changeState(rob.Value, rob.PC_now);
     } else ROB.pop();
-//    getCommand(rob.Instruct);
-//    showReg();
+   // printf("%04x ", rob.PC_now);
+  //  getCommand(rob.Instruct);
+ //   showReg();
 }
 
 
