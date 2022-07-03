@@ -353,8 +353,6 @@ void set_memory(char first) {
 }
 
 int main() {
-    freopen("bulgarian.data", "r", stdin);
-    freopen("ans.out", "w", stdout);
     string num;
     char first_char;
     unsigned int order;
@@ -367,29 +365,10 @@ int main() {
             des += 4;
         }
     }
-    int i = 0;
     while (1) {
-        i++;
-             printf("%04x ",PC);
-        // cout << (regis[10] & 255u) << endl;
-        // cout<<"regis[1]: "<<regis[1]<<endl;
         order = (mem[PC] & ((1 << 9) - 1)) + ((mem[PC + 1] & ((1 << 17) - 1)) << 8) +
                 ((mem[PC + 2] & ((1 << 25) - 1)) << 16) + (mem[PC + 3] << 24);
-        //    cout<<order<<" ";
-
         parser(order);
-        if (PC == 0x12ac) {
-            getReg();
-            //    ROB.traverse();
-        }
-        if (PC == 0x1284) {
-            getReg();
-           /* puts("!");
-            std::cout<<rob.Instruct<<std::endl;
-            showReg();*/
-            //    ROB.traverse();
-        }
         regis[0] = 0;
-     //
     }
 }

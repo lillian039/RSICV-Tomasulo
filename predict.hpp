@@ -73,8 +73,7 @@ public:
 
     //for JALR and JAL
     void reStart(unsigned int des) {
-        PC = des;
-        stop = false;
+        PC = des,stop = false;
     }
 
     std::pair<unsigned, unsigned> getCommand() {
@@ -82,10 +81,8 @@ public:
     }
 
     void pop() {
-        top = (top + 1) % len;
-        size--;
+        top = (top + 1) % len,size--;
     }
-
 } ISQ;
 
 #endif //TESTCASES_FOR_RISCV_PREDICT_HPP

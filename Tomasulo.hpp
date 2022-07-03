@@ -90,18 +90,6 @@ public:
         if (rob[CDB.entry].Type == B || order == JALR || order == JAL)rob[CDB.entry].PC_des = CDB.pc;
         if (order == JALR || order == JAL)ISQ.reStart(rob[CDB.entry].PC_des);
     }
-
-    void traverse() {
-        for (int i = 0; i < size; i++) {
-            int idx = (top + i) % len;
-            std::cout << "Ready: " << rob[idx].Ready << " Order: " << rob[idx].Instruct << " PC: ";
-            printf("%04x", rob[idx].PC_now);
-            std::cout << " Result: " << rob[idx].Value << " Des: " << rob[idx].Des;
-            std::cout << std::endl;
-            getCommand(rob[idx].Instruct);
-        }
-    }
-
 } ROB;
 
 struct LS_Buffers {//load store buffer
@@ -205,14 +193,10 @@ public:
                 if (!flag)continue;
                 if (t != LSB[i].clock) {
                     LSB[i].State = finished;
-                    //                 puts("Load");
-                    //                  std::cout << "Address:" << LSB[i].Address << " Result: " << LSB[i].Result << std::endl;
                     continue;
                 } else {
                     if (loadBus.time)continue;
                     Load(LSB[i].Op, LSB[i].Address, LSB[i].Result);
-                    //               puts("Load");
-                    //               std::cout << "Address:" << LSB[i].Address << " Result: " << LSB[i].Result << std::endl;
                     LSB[i].State = loading;
                     loadBus.time = 3, loadBus.i = i;
                 }
@@ -404,14 +388,7 @@ void Commit() {
     }
     if (rob.Type == S)LSBuffer.commit(rob.Entry);//可能还没有storing完就branch了？
     if (rob.Type == B) {
-        //  if(rob.Value)puts("!");
         unsigned des = getImm(rob.Instruct) + rob.PC_now;
-        //  printf("pc_now: %04x ", rob.PC_now);
-        // printf("pc_des: %04x\n", des);
-        //   if(des!=rob.PC_des&&rob.PC_now!=rob.PC_des) {
-        //       printf("pc_des: %04x ", rob.PC_des);
-        //        printf("des: %04x Entry: %d pc_now: %04x\n", des, rob.Entry, rob.PC_now);
-        //    }
         if (Predicter.jump(rob.PC_now) ^ rob.Value) {
             if (rob.Value)ISQ.reset(des);
             else ISQ.reset(rob.PC_now + 4);
@@ -419,21 +396,6 @@ void Commit() {
         } else ROB.pop();
         Predicter.changeState(rob.Value, rob.PC_now);
     } else ROB.pop();
- //   printf("%04x ", rob.PC_now);
-  //  getCommand(rob.Instruct);
-   /* if (rob.PC_now == 0x12ac) {
-        puts("?");
-        std::cout << rob.Instruct << std::endl;
-        showReg();
-        //    ROB.traverse();
-    }
-    if (rob.PC_now == 0x1284) {
-        puts("!");
-        std::cout << rob.Instruct << std::endl;
-        showReg();
-        //    ROB.traverse();
-    }*/
-    // showReg();
 }
 
 
